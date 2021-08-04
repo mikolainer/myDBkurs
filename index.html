@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<style type="text/css">
+		*{box-sizing: border-box; font-size: 18pt;}
+		html{background-color: #666; width: 100%; height: 100%; padding-top: 200px;}
+		body{width: 80%; margin: auto; background-color: #DDD; padding-top: 40px; padding-bottom: 40px; border-radius: 8px;}
+		form{width: 80%; margin: auto;}
+		input{display: block; width: 100%;}
+	</style>
+</head>
+<body>
+	<form name="login" method="post" action="menu.php">
+		<input name="mail" type="text" placeholder="e-mail">
+		<input name="pwd" type="password" placeholder="password">
+		<i style="display: inline-block; width: 100px">New user</i>
+		<input style="display: inline-block; width: 20px;" name="newUser" type="checkbox">
+		<input type="submit" value="Log in!">
+	</form>
+</body>
+</html>
