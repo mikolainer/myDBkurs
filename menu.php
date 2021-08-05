@@ -9,7 +9,7 @@
 		input{display: block; width: 100%;}
 		form{width: 80%; margin: auto; border-radius: 8px; background-color: rdba(0,0,0,0); padding: 40px;}
 		form.settings {padding: 0px; margin-bottom: 8px;}
-		form.settings > input{display: inline-block; width: 49%; background-color: #DDD;}
+		form.settings > input {display: inline-block; width: 49%; background-color: #DDD;}
 		form.settings.quit > input {width: 100%; margin-top: 20px;}
 		h2{margin-top: 60px; color: white; text-align: center; font-size: 24pt;}
 	</style>
@@ -119,7 +119,7 @@
 				$mer;
 				$i = 0;
 				while ($mer = $result->fetch_assoc()){
-					$merops .= '<label for="mer'. $i .'">'.$mer['name']. '</label><input id="mer'. $i .'" style = "width:13px; display: inline;" name="meroid" type="radio" value="'.$mer['id'].'"><br>';
+					$merops .= '<label for="mer'. $i .'">'.$mer['name']. '</label><input id="mer'. $i .'" style = "width:13px; display: inline;" name="meroid" type="radio" value="'.$mer['id'].'">';
 					$i= $i+1;
 				}
 
@@ -160,6 +160,7 @@
 						<input name="mail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="pwd" type="hidden" placeholder="password" value="'.$orgpwd.'">
 						'.$merops.'
+						<label for="NEWmer">добавить новое мероприятие</label><input id="NEWmer" style = "width:13px; display: inline;" name="meroid" type="radio" value="NEWmer">
 						<input type="submit" value="Редактировать">
 					</form>
 				';

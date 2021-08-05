@@ -2,6 +2,9 @@
 <html>
 <head>
 	<title>Редактор мероприятия</title>
+	<style type="text/css">
+		
+	</style>
 </head>
 <body>
 	<?php
