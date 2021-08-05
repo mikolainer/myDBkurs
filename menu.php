@@ -6,28 +6,34 @@
 		*{box-sizing: border-box; font-size: 18pt;}
 		html{background-color: #666; width: 100%; height: 100%; padding-top: 60px;}
 		body{width: 80%; margin: auto; padding-top: 40px; padding-bottom: 40px;}
-		form{width: 80%; margin: auto; border-radius: 8px; background-color: #DDD; padding: 40px;}
 		input{display: block; width: 100%;}
+		form{width: 80%; margin: auto; border-radius: 8px; background-color: rdba(0,0,0,0); padding: 40px;}
+		form.settings {padding: 0px; margin-bottom: 8px;}
+		form.settings > input{display: inline-block; width: 49%; background-color: #DDD;}
+		form.settings.quit > input {width: 100%; margin-top: 20px;}
 		h2{margin-top: 60px; color: white; text-align: center; font-size: 24pt;}
 	</style>
 </head>
 <body>
 	<?php
-		$dbhost = 'localhost'; // адрес сервера 
-		$dbdatabase = 'my_db'; // имя базы данных
-		$dbuser = 'mysql'; // имя пользователя
-		$dbpassword = 'mysql'; // пароль
+		$dbhost = 'localhost';		// адрес сервера 
+		$dbdatabase = 'my_db';		// имя базы данных
+		$dbuser = 'mysql';			// имя пользователя
+		$dbpassword = 'mysql';		// пароль
 
+		////   содержание страницы по умолчанию как в index.html (на случай попытки входа без ввода почты)  ////
 		$cont = '
-				<form name="login" method="post" action="menu.php">
-					<input name="mail" type="text" placeholder="e-mail">
-					<input name="pwd" type="password" placeholder="password">
-					New user
-					<input name="newUser" type="checkbox">
-					<input type="submit" value="Log in!">
-				</form>
-			';
-		
+		<form name="login" method="post" action="menu.php">
+			<input name="mail" type="text" placeholder="e-mail">
+			<input name="pwd" type="password" placeholder="password">
+			New user
+			<input name="newUser" type="checkbox">
+			<input type="submit" value="Log in!">
+		</form>';
+
+
+
+		////   обработка изменения почты или пароля   ////
 
 		if (isset($_POST['mail']) || isset($_POST['newMail'])){
 			if (isset($_POST['mail'])) $sentmail = $_POST['mail'];
@@ -46,21 +52,25 @@
 			}
 			mysqli_close($link);
 
+
+			////   содержание страницы по умолчанию как в index.html (с подстановкой введённого раньше логина)  ////
+
 			$cont = '
-					<form name="login" method="post" action="menu.php">
-						<input name="mail" type="text" placeholder="e-mail" value="'.$sentmail.'">
-						<input name="pwd" type="password" placeholder="password">
-						New user
-						<input name="newUser" type="checkbox">
-						<input type="submit" value="Log in!">
-					</form>
-				';
-			}
+			<form name="login" method="post" action="menu.php">
+				<input name="mail" type="text" placeholder="e-mail" value="'.$sentmail.'">
+				<input name="pwd" type="password" placeholder="password">
+				New user
+				<input name="newUser" type="checkbox">
+				<input type="submit" value="Log in!">
+			</form>';
+		}
 
 		if (isset($_POST['pwd'])) $sentpwd = $_POST['pwd'];
 		if (isset($_POST['newPwd']))$sentpwd = $_POST['newPwd'];
 		if (isset($_POST['newUser'])) $isnew = $_POST['newUser'];
 		
+
+		////   проверка корректности данных для входа   ////
 
 		if(!empty($sentmail) && !empty($sentpwd)){
 
@@ -71,6 +81,7 @@
 			$result = mysqli_query($link, $query) or die("Ошибка " . mysqli_error($link));
 			$orgpwd = $result->fetch_assoc()['pwd'];
 			if (empty($orgpwd)){
+				// если ты случайно обновишь логин или пароль на пустой - всегда будешь получать эту ошибку, но об этом мы никому не скажем
 				if (empty($isnew)) echo "Пользователь не существует!<br>";
 				else{
 					echo "Пользователь '".$sentmail."' успешно зарегистрирован! Для входа введите данные повтороно'<br>";
@@ -80,6 +91,12 @@
 			} 
 			else if ($orgpwd != $sentpwd) echo "Неверный пароль!<br>";
 			else{
+
+
+				////    УСПЕШНЫЙ ВХОД    ////
+
+				// выгрузка контента страницы из БД
+
 				$query ="SELECT * FROM organizator WHERE mail='".$sentmail."'";
 				$result = mysqli_query($link, $query)->fetch_assoc() or die("Ошибка " . mysqli_error($link));
 				if ($result['name']) $orgname = $result['name'];
@@ -109,35 +126,31 @@
 				
 
 				$cont = '
-					<form name="newmail" method="post" action="menu.php">
+					<form class="settings" name="newmail" method="post" action="menu.php">
 						<input name="lastMail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="pwd" type="hidden" placeholder="e-mail" value="'.$orgpwd.'">
-						mail:<input name="newMail" type="text" placeholder="e-mail" value="'.$sentmail.'"><br>
+						mail:<br><input name="newMail" type="text" placeholder="e-mail" value="'.$sentmail.'">
 						<input type="submit" value="изменить почту">
 					</form>
-					<br>
-					<form name="newpwd" method="post" action="menu.php">
+					<form class="settings" name="newpwd" method="post" action="menu.php">
 						<input name="mail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="lastPwd" type="hidden" placeholder="e-mail" value="'.$orgpwd.'">
-						password:<input name="newPwd" type="password" placeholder="password" value="'.$orgpwd.'"><br>
+						password:<br><input name="newPwd" type="password" placeholder="password" value="'.$orgpwd.'">
 						<input type="submit" value="изменить пароль">
 					</form>
-					<br>
-					<form name="newname" method="post" action="menu.php">
+					<form class="settings" name="newname" method="post" action="menu.php">
 						<input name="mail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="pwd" type="hidden" placeholder="e-mail" value="'.$orgpwd.'">
-						name:<input name="newName" type="text" placeholder="ФИО" value="'.$orgname.'"><br>
+						name:<br><input name="newName" type="text" placeholder="ФИО" value="'.$orgname.'">
 						<input type="submit" value="Изменить имя">
 					</form>
-					<br>
-					<form name="newphone" method="post" action="menu.php">
+					<form class="settings" name="newphone" method="post" action="menu.php">
 						<input name="mail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="pwd" type="hidden" placeholder="e-mail" value="'.$orgpwd.'">
-						phone:<input name="newPhone" type="text" placeholder="89991112233" value="'.$orgphone.'"><br>
+						phone:<br><input name="newPhone" type="text" placeholder="89991112233" value="'.$orgphone.'">
 						<input type="submit" value="Изменить телефон">
 					</form>
-					<br>
-					<form name="quit" method="post" action="menu.php">
+					<form class="settings quit" name="quit" method="post" action="menu.php">
 					<input type="submit" value="Выйти">
 					</form>
 
@@ -158,6 +171,7 @@
 			if (empty($sentmail)) echo "email не введён!<br>";
 			if (empty($sentpwd)) echo "пароль не введён!<br>";
 		}
+
 		echo $cont;
 	?>
 </body>
