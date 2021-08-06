@@ -11,11 +11,14 @@
 		form.settings {padding: 0px; margin-bottom: 8px;}
 		form.settings > input {display: inline-block; width: 49%; background-color: #DDD;}
 		form.settings.quit > input {width: 100%; margin-top: 20px;}
-		h2{margin-top: 60px; color: white; text-align: center; font-size: 24pt;}
+		form.meroform > label {display: block;}
+		h2{margin-top: 60px; color: white; text-align: center; font-size: 24pt;
+
 	</style>
 </head>
 <body>
 	<?php
+	ini_set('display_errors','Off');
 		$dbhost = 'localhost';		// адрес сервера 
 		$dbdatabase = 'my_db';		// имя базы данных
 		$dbuser = 'mysql';			// имя пользователя
@@ -24,8 +27,8 @@
 		////   содержание страницы по умолчанию как в index.html (на случай попытки входа без ввода почты)  ////
 		$cont = '
 		<form name="login" method="post" action="menu.php">
-			<input name="mail" type="text" placeholder="e-mail">
-			<input name="pwd" type="password" placeholder="password">
+			<input name="mail" type="text" placeholder="e-mail" required>
+			<input name="pwd" type="password" placeholder="password" required>
 			New user
 			<input name="newUser" type="checkbox">
 			<input type="submit" value="Log in!">
@@ -57,8 +60,8 @@
 
 			$cont = '
 			<form name="login" method="post" action="menu.php">
-				<input name="mail" type="text" placeholder="e-mail" value="'.$sentmail.'">
-				<input name="pwd" type="password" placeholder="password">
+				<input name="mail" type="text" placeholder="e-mail" value="'.$sentmail.'" required>
+				<input name="pwd" type="password" placeholder="password" required>
 				New user
 				<input name="newUser" type="checkbox">
 				<input type="submit" value="Log in!">
@@ -79,9 +82,10 @@
 
 			$query ="SELECT pwd FROM organizator WHERE mail='".$sentmail."'";
 			$result = mysqli_query($link, $query) or die("Ошибка " . mysqli_error($link));
-			$orgpwd = $result->fetch_assoc()['pwd'];
+			if (!empty($result))
+				$orgpwd = $result->fetch_assoc()['pwd'] or $orgpwd='';
+			
 			if (empty($orgpwd)){
-				// если ты случайно обновишь логин или пароль на пустой - всегда будешь получать эту ошибку, но об этом мы никому не скажем
 				if (empty($isnew)) echo "Пользователь не существует!<br>";
 				else{
 					echo "Пользователь '".$sentmail."' успешно зарегистрирован! Для входа введите данные повтороно'<br>";
@@ -96,6 +100,9 @@
 				////    УСПЕШНЫЙ ВХОД    ////
 
 				// выгрузка контента страницы из БД
+
+				$orgname = '';
+				$orgphone = '';
 
 				$query ="SELECT * FROM organizator WHERE mail='".$sentmail."'";
 				$result = mysqli_query($link, $query)->fetch_assoc() or die("Ошибка " . mysqli_error($link));
@@ -119,7 +126,7 @@
 				$mer;
 				$i = 0;
 				while ($mer = $result->fetch_assoc()){
-					$merops .= '<label for="mer'. $i .'">'.$mer['name']. '</label><input id="mer'. $i .'" style = "width:13px; display: inline;" name="meroid" type="radio" value="'.$mer['id'].'">';
+					$merops .= '<label for="mer'. $i .'"><input id="mer'. $i .'" style = "width:13px; display: inline;" name="meroid" type="radio" value="'.$mer['id'].'">'.$mer['name']. '</label>';
 					$i= $i+1;
 				}
 
@@ -129,13 +136,13 @@
 					<form class="settings" name="newmail" method="post" action="menu.php">
 						<input name="lastMail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="pwd" type="hidden" placeholder="e-mail" value="'.$orgpwd.'">
-						mail:<br><input name="newMail" type="text" placeholder="e-mail" value="'.$sentmail.'">
+						mail:<br><input name="newMail" type="text" placeholder="e-mail" value="'.$sentmail.'" required>
 						<input type="submit" value="изменить почту">
 					</form>
 					<form class="settings" name="newpwd" method="post" action="menu.php">
 						<input name="mail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="lastPwd" type="hidden" placeholder="e-mail" value="'.$orgpwd.'">
-						password:<br><input name="newPwd" type="password" placeholder="password" value="'.$orgpwd.'">
+						password:<br><input name="newPwd" type="password" placeholder="password" value="'.$orgpwd.'" required>
 						<input type="submit" value="изменить пароль">
 					</form>
 					<form class="settings" name="newname" method="post" action="menu.php">
@@ -156,11 +163,11 @@
 
 					<h2>Мероприятия</h2>
 					
-					<form name="meroed" method="post" action="meroEdit.php">
+					<form class="meroform" name="meroed" method="post" action="meroEdit.php">
 						<input name="mail" type="hidden" placeholder="e-mail" value="'.$sentmail.'">
 						<input name="pwd" type="hidden" placeholder="password" value="'.$orgpwd.'">
 						'.$merops.'
-						<label for="NEWmer">добавить новое мероприятие</label><input id="NEWmer" style = "width:13px; display: inline;" name="meroid" type="radio" value="NEWmer">
+						<label for="NEWmer"><input required id="NEWmer" style = "width:13px; display: inline;" name="meroid" type="radio" value="NEWmer">добавить новое мероприятие</label>
 						<input type="submit" value="Редактировать">
 					</form>
 				';

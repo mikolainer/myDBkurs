@@ -25,26 +25,40 @@
 			$result = mysqli_query($link, $query) or die("Ошибка 1" . mysqli_error($link));
 		}
 
-	    $query = "SELECT * FROM merop WHERE org='".$_POST['mail']."' and id='".$_POST['meroid']."'";
-
-		$result = mysqli_query($link, $query)->fetch_assoc() or die("Ошибка 2" . mysqli_error($link));
-
-		$mername = $result['name'];
-		$merdatim = $result['dattime'];
-		$merdescr = $result['descr'];
-		echo "<br>".$result['dattime']."<br>";
-
 		$cont = '
+			<form name="newMeroTitle" method="post">
+				<input type="hidden" name="pwd">
+				<input type="hidden" name="mail">
+				<input type="hidden" name="meroid">
+				<input type="text" name="meroname">
+				<input type="datetime-local" name="merodatime"><br>
+				<textarea name="merodescr" cols="47" rows="4"></textarea><br>
+				<input type="submit" value="Создать мероприятие">
+			</form><br>';
+		
+		if ($_POST['meroid'] != 'NEWmer'){
+			$query = "SELECT * FROM merop WHERE org='".$_POST['mail']."' and id='".$_POST['meroid']."'";
+			
+			$result = mysqli_query($link, $query);
+			if ($result == false){
+				$query ="INSERT INTO merop (`org`, `name`, `descr`, `dattime`)
+						VALUES (".$_POST['mail'].", '".$_POST['meroname']."', ".$_POST['merodescr'].", '".$_POST['merodatime']."')";
+				$result = mysqli_query($link, $query);
+			}
+
+			$result = $result->fetch_assoc();
+
+			$cont = '
 			<form name="newMeroTitle" method="post">
 				<input type="hidden" name="pwd" value="'. $_POST['pwd'] .'">
 				<input type="hidden" name="mail" value="'. $_POST['mail'] .'">
 				<input type="hidden" name="meroid" value="'. $_POST['meroid'] .'">
-				<input type="text" name="meroname" value="'. $mername .'">
-				<input type="datetime" name="merodatime" value="'. $merdatim .'"><br>
-				<textarea name="merodescr" cols="47" rows="4">'. $merdescr .'</textarea><br>
+				<input type="text" name="meroname" value="'. $result['name'] .'">
+				<input type="datetime-local" name="merodatime" value="'. substr(str_replace(" ", "T", $result['dattime']), 0, -3) .'"><br>
+				<textarea name="merodescr" cols="47" rows="4">'. $result['descr'] .'</textarea><br>
 				<input type="submit" value="Сохранить">
-			</form><br>
-		';
+			</form><br>';
+		}
 		echo $cont;
 
 		mysqli_close($link);
